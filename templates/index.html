@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+	<title>POST mortem</title>
+	<style>
+	.post {
+		font-family: monospace;
+	}
+
+	div.message {
+		font-size: 1.3rem;
+		margin: 1rem 1rem 3rem 3rem;
+	}
+
+	div.bordered {
+		margin-top: 2rem;
+		padding: 0.8rem;
+
+		width: 80%;
+		border: 1px solid #ccc;
+		border-radius: 10px;
+		background: #f0f0f0;
+	}
+
+	blockquote.poem {
+		white-space: pre;
+		font-size: 1.5rem;
+	}
+
+	blockquote.poem::first-line {
+		font-size: 1.8rem;
+		font-weight: bold;
+		text-decoration: underline;
+		margin-bottom: 3rem;
+	}
+	</style>
+</head>
+<body>
+	<h1><span class="post">POST</span> mortem</h1>
+
+	{% if poem %}
+	<blockquote class="poem" id="poem-quote">{{ poem }}</blockquote>
+	{% else %}
+	<div class="message" style="font-style: italic;">
+		No poem has been started yet, add some words!
+	</div>
+	{% endif %}
+
+	<form id="add-words-form">
+		<div>
+			<label for="addend-input">Enter some words to add:</label>
+			<input type="text" id="addend-input" style="width: 80%;" />
+		</div>
+		<button type="submit">Add Words</button>
+	</form>
+
+	<script type="module">
+		import { update_all } from '/static/main.js';
+
+		let form = document.getElementById('add-words-form');
+		let input = document.getElementById('addend-input');
+
+		form.addEventListener('submit', evt => {
+			evt.preventDefault();
+
+			var key = "{{ key }}";
+			let words = input.value.split(" ");
+			update_all(key, words).then( key => {
+				document.location = "/" + key;
+			});
+		});
+	</script>
+
+	{% if key %}
+	<div class="bordered">
+		<strong>Mail this URL on to the next person!</strong>
+		<div id="url-div" style="float: left;"></div>
+		<button id="copy-button" style="float: right;">Copy to Clipboard</button>
+	</div>
+	<script type="module">
+		let div = document.getElementById('url-div');
+		let url = document.location;
+		div.innerHTML = `<a href="${url}">${url}</div>`;
+
+		let button = document.getElementById('copy-button');
+		button.addEventListener('click', evt => {
+			navigator.clipboard.writeText(url);
+			button.innerHTML = "Copied!";
+			button.disabled = true;
+
+			setTimeout(() => {
+				button.innerHTML = "Copy to Clipboard";
+				button.disabled = false;
+			}, 2000);
+		});
+	</script>
+
+	<div class="bordered">
+		<strong><span class="post">POST</span> distance</strong>
+		<table style="width: 100%">
+			<tr><td>Number of words (excl. title)</td><td>{{ stats.words }}</td></tr>
+			<tr><td>Number of newlines (excl. title)</td><td>{{ stats.lines }}</td></tr>
+			<tr><td>Round-trip distance</td><td>{{ stats.roundtrip }} km</td></tr>
+			<tr><td>Total distance</td><td><strong>{{ stats.km }} km</strong> ({{ stats.mi }} mi)</td></tr>
+		</table>
+		<img style="width: 100%" src="static/route.png">
+	</div>
+	{% endif %}
+</body>
+</html>
