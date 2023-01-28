@@ -74,23 +74,25 @@
 
 	{% if key %}
 	<div class="bordered">
-		<strong>Mail this URL on to the next person!</strong>
+		<strong>Mail the poem and this URL on to the next person!</strong>
 		<div id="url-div" style="float: left;"></div>
-		<button id="copy-button" style="float: right;">Copy to Clipboard</button>
+		<button id="copy-button" style="float: right;">Copy it all to my clipboard</button>
 	</div>
 	<script type="module">
+		let poem = document.getElementById('poem-quote').innerHTML;
 		let div = document.getElementById('url-div');
 		let url = document.location;
 		div.innerHTML = `<a href="${url}">${url}</div>`;
 
 		let button = document.getElementById('copy-button');
 		button.addEventListener('click', evt => {
-			navigator.clipboard.writeText(url);
+			navigator.clipboard.writeText(poem + "\n\n" + url);
+			let oldText = button.innerHTML;
 			button.innerHTML = "Copied!";
 			button.disabled = true;
 
 			setTimeout(() => {
-				button.innerHTML = "Copy to Clipboard";
+				button.innerHTML = oldText;
 				button.disabled = false;
 			}, 2000);
 		});
